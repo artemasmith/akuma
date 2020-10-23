@@ -1,6 +1,11 @@
 class Issue < ApplicationRecord
-  belongs_to :category
   include AASM
+
+  belongs_to :category, optional: true
+  belongs_to :user, foreign_key: 'assignee_id', optional: true
+
+  scope :unassigned, -> { where(assignee_id: nil) }
+  scope :by_category, ->(category_id) { where(category_id: category_id) }
 
   aasm do
     state :open, initial: true

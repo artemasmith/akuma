@@ -42,7 +42,7 @@ ActiveRecord::Schema.define(version: 2020_10_20_145337) do
     t.string "title"
     t.string "description"
     t.string "issue_type"
-    t.integer "assignee"
+    t.integer "assignee_id"
     t.string "creator"
     t.string "aasm_state"
     t.string "resolution"

@@ -4,7 +4,7 @@ class CreateIssues < ActiveRecord::Migration[6.0]
       t.string :title
       t.string :description
       t.string :issue_type
-      t.integer :assignee
+      t.integer :assignee_id
       t.string :creator
       t.string :aasm_state
       t.string :resolution
