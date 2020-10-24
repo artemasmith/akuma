@@ -4,16 +4,26 @@ class AssignmentEngine
     new.call
   end
 
+  def self.assign(issue)
+    new.assign(issue)
+  end
+
   def call
     unassigned_issues.each do |issue|
-      next if (cycling_users[issue.category_id].blank? || !cycling_users[issue.category_id].any?)
+      next if no_users_for_category?(issue.category_id)
+
+      # FYI: Round robin for users in category
       next_user = cycling_users[issue.category_id].next
       issue.update(assignee_id: next_user)
     end
   end
 
   def assign(issue)
-    #TODO: assign one issue to random user in scope of the category
+    user_id = User.by_category(issue.category_id).sample&.id if issue.category_id
+
+    # FYI: No category => random assignee
+    user_id ||= User.pluck(:id).sample
+    issue.update(assignee_id: user_id)
   end
 
   private
@@ -41,5 +51,9 @@ class AssignmentEngine
       end
       grouped_users
     end
+  end
+
+  def no_users_for_category?(category_id)
+    cycling_users[category_id].blank? || cycling_users[category_id].none?
   end
 end
