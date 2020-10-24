@@ -77,6 +77,11 @@ RSpec.describe AssignmentEngine do
       it 'assign it all' do
         expect(Issue.unassigned.count).to eq(0)
       end
+      it 'creates assignment_event' do
+        expect(AssignmentEvent.count).to eq(1)
+        expect(AssignmentEvent.last.source_cls).to eq('AssignmentEngine')
+        expect(AssignmentEvent.last.action).to eq('call')
+      end
     end
     describe '.assign' do
       context 'when only one user in category' do
@@ -87,6 +92,12 @@ RSpec.describe AssignmentEngine do
 
         it 'assign user1' do
           expect(issue1.reload.user).to eq(user1)
+        end
+
+        it 'creates assignment_event' do
+          expect(AssignmentEvent.count).to eq(1)
+          expect(AssignmentEvent.last.source_cls).to eq('AssignmentEngine')
+          expect(AssignmentEvent.last.action).to eq('assign')
         end
       end
       context 'when multiple category users' do

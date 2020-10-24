@@ -1,4 +1,5 @@
 class AssignmentEngine
+  include ActAsTrackable
 
   def self.call
     new.call
@@ -9,13 +10,17 @@ class AssignmentEngine
   end
 
   def call
-    unassigned_issues.each do |issue|
+    issues_to_process = unassigned_issues
+    issues_to_process.each do |issue|
       next if no_users_for_category?(issue.category_id)
 
       # FYI: Round robin for users in category
       next_user = cycling_users[issue.category_id].next
       issue.update(assignee_id: next_user)
     end
+
+    # FYI: Use Sequent/RES in production, use background workers to proceed tracking
+    track(cls: self.class, method: __method__, issues_assignees: issues_to_process.pluck(:id, :assignee_id))
   end
 
   def assign(issue)
@@ -24,6 +29,8 @@ class AssignmentEngine
     # FYI: No category => random assignee
     user_id ||= User.pluck(:id).sample
     issue.update(assignee_id: user_id)
+
+    track(cls: self.class, method: __method__, issue_id: issue.id, assignee: user_id)
   end
 
   private
